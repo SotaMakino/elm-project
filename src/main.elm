@@ -4,6 +4,10 @@ import Browser
 import Html exposing (..)
 
 
+
+--MAIN
+
+
 main : Program () Model Msg
 main =
     Browser.sandbox
@@ -11,6 +15,10 @@ main =
         , view = view
         , update = update
         }
+
+
+
+--MODEL
 
 
 type alias Model =
@@ -27,6 +35,10 @@ type Msg
     | Msg2
 
 
+
+--UPDATE
+
+
 update : Msg -> Model -> Model
 update msg model =
     case msg of
@@ -37,6 +49,10 @@ update msg model =
             model
 
 
+
+--VIEW
+
+
 view : Model -> Html Msg
 view model =
     div []
@@ -44,7 +60,7 @@ view model =
 
 
 
--- Bars
+-- BARS
 
 
 bar1 : Model
