@@ -19,7 +19,7 @@ type alias Model =
 
 init : Model
 init =
-    { id = 1, value = 10 }
+    Model 1 1
 
 
 type Msg
@@ -41,3 +41,27 @@ view : Model -> Html Msg
 view model =
     div []
         [ text "New Sandbox" ]
+
+
+
+-- Bars
+
+
+bar1 : Model
+bar1 =
+    { id = 1, value = 1 }
+
+
+bar2 : Model
+bar2 =
+    { id = 2, value = 2 }
+
+
+bar3 : Model
+bar3 =
+    { id = 3, value = 3 }
+
+
+bars : List Model
+bars =
+    [ bar1, bar2, bar3 ]
