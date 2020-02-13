@@ -2,6 +2,7 @@ module Main exposing (Model, Msg, init, update, view)
 
 import Browser
 import Html exposing (..)
+import Html.Attributes exposing (style)
 
 
 
@@ -56,7 +57,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ text "New Sandbox" ]
+        [ header [ style "background-color" "skyblue", style "font-size" "30px", style "padding" "3px 5px" ] [ text "Comparison Sorting Algorithms" ] ]
 
 
 
