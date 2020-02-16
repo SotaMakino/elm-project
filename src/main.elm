@@ -19,7 +19,7 @@ barData =
 barGraphAttributes =
     { graphHeight = 200
     , graphWidth = 800
-    , options = [ Color "rgb(200,0,0)", DeltaX 50, YTickmarks 6, XTickmarks 2, Scale 1.0 1.0 ]
+    , options = [ Color "gray", DeltaX 50, YTickmarks 6, XTickmarks 1, Scale 1.0 1.0 ]
     }
 
 
