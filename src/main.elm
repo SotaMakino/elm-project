@@ -8,6 +8,22 @@ import SimpleGraph exposing (Option(..), barChart, lineChart)
 
 
 
+--DATA
+
+
+barData : List Float
+barData =
+    [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 ]
+
+
+barGraphAttributes =
+    { graphHeight = 200
+    , graphWidth = 800
+    , options = [ Color "rgb(200,0,0)", DeltaX 50, YTickmarks 6, XTickmarks 2, Scale 1.0 1.0 ]
+    }
+
+
+
 --MAIN
 
 
@@ -25,24 +41,12 @@ main =
 
 
 type alias Model =
-    { id : Int, value : Int }
+    {}
 
 
 init : Model
 init =
-    Model 1 1
-
-
-barData : List Float
-barData =
-    [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 ]
-
-
-barGraphAttributes =
-    { graphHeight = 100
-    , graphWidth = 400
-    , options = [ Color "rgb(200,0,0)", DeltaX 15, YTickmarks 6, XTickmarks 2, Scale 1.0 1.0 ]
-    }
+    {}
 
 
 type Msg
