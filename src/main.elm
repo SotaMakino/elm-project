@@ -4,6 +4,7 @@ import Browser
 import Html exposing (..)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
+import SimpleGraph exposing (Option(..), barChart, lineChart)
 
 
 
@@ -30,6 +31,18 @@ type alias Model =
 init : Model
 init =
     Model 1 1
+
+
+barData : List Float
+barData =
+    [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 ]
+
+
+barGraphAttributes =
+    { graphHeight = 100
+    , graphWidth = 400
+    , options = [ Color "rgb(200,0,0)", DeltaX 15, YTickmarks 6, XTickmarks 2, Scale 1.0 1.0 ]
+    }
 
 
 type Msg
@@ -65,28 +78,5 @@ view model =
             ]
             [ text "Comparison Sorting Algorithms" ]
         , div [ style "padding" "5px" ] [ button [ onClick Msg1 ] [ text "Rondamise Array" ] ]
+        , div [] [ barChart barGraphAttributes barData ]
         ]
-
-
-
--- BARS
-
-
-bar1 : Model
-bar1 =
-    { id = 1, value = 1 }
-
-
-bar2 : Model
-bar2 =
-    { id = 2, value = 2 }
-
-
-bar3 : Model
-bar3 =
-    { id = 3, value = 3 }
-
-
-bars : List Model
-bars =
-    [ bar1, bar2, bar3 ]
