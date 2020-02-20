@@ -4,6 +4,7 @@ import Browser
 import Html exposing (..)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
+import Random
 import SimpleGraph exposing (Option(..), barChart, lineChart)
 
 
@@ -29,10 +30,11 @@ barGraphAttributes =
 
 main : Program () Model Msg
 main =
-    Browser.sandbox
+    Browser.element
         { init = init
-        , view = view
+        , subscriptions = subscriptions
         , update = update
+        , view = view
         }
 
 
@@ -41,31 +43,42 @@ main =
 
 
 type alias Model =
-    {}
+    { value : Int }
 
 
-init : Model
-init =
-    {}
+init : () -> ( Model, Cmd Msg )
+init _ =
+    ( Model 1
+    , Cmd.none
+    )
 
 
 type Msg
-    = Msg1
-    | Msg2
+    = Randomize
+    | NewValue Int
 
 
 
 --UPDATE
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Msg1 ->
-            model
+        Randomize ->
+            ( model, Random.generate NewValue (Random.int 1 15) )
 
-        Msg2 ->
-            model
+        NewValue value ->
+            ( Model value, Cmd.none )
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
 
 
 
@@ -81,6 +94,7 @@ view model =
             , style "padding" "3px 5px"
             ]
             [ text "Comparison Sorting Algorithms" ]
-        , div [ style "padding" "5px" ] [ button [ onClick Msg1 ] [ text "Rondamise Array" ] ]
+        , div [ style "padding" "5px" ] [ button [ onClick Randomize ] [ text "Randomise Array" ] ]
         , div [] [ barChart barGraphAttributes barData ]
+        , div [] [ text (String.fromInt model.value) ]
         ]
