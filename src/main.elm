@@ -4,7 +4,6 @@ import Browser
 import Html exposing (..)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
-import Random
 import SimpleGraph exposing (Option(..), barChart, lineChart)
 
 
@@ -12,9 +11,9 @@ import SimpleGraph exposing (Option(..), barChart, lineChart)
 --DATA
 
 
-barData : List Float
-barData =
-    [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 ]
+floatedList : List Int -> List Float
+floatedList list =
+    List.map (\a -> toFloat a) list
 
 
 barGraphAttributes =
@@ -28,14 +27,8 @@ barGraphAttributes =
 --MAIN
 
 
-main : Program () Model Msg
 main =
-    Browser.element
-        { init = init
-        , subscriptions = subscriptions
-        , update = update
-        , view = view
-        }
+    Browser.sandbox { init = init, update = update, view = view }
 
 
 
@@ -43,42 +36,27 @@ main =
 
 
 type alias Model =
-    { value : Int }
+    { barList : List Int }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( Model 1
-    , Cmd.none
-    )
+init : Model
+init =
+    { barList = List.range 1 15 }
 
 
 type Msg
-    = Randomize
-    | NewValue Int
+    = NewValue
 
 
 
 --UPDATE
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update msg model =
     case msg of
-        Randomize ->
-            ( model, Random.generate NewValue (Random.int 1 15) )
-
-        NewValue value ->
-            ( Model value, Cmd.none )
-
-
-
--- SUBSCRIPTIONS
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
+        NewValue ->
+            model
 
 
 
@@ -94,7 +72,5 @@ view model =
             , style "padding" "3px 5px"
             ]
             [ text "Comparison Sorting Algorithms" ]
-        , div [ style "padding" "5px" ] [ button [ onClick Randomize ] [ text "Randomise Array" ] ]
-        , div [] [ barChart barGraphAttributes barData ]
-        , div [] [ text (String.fromInt model.value) ]
+        , div [] [ barChart barGraphAttributes (floatedList model.barList) ]
         ]
