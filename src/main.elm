@@ -38,7 +38,7 @@ floatedList list =
 barGraphAttributes =
     { graphHeight = 200
     , graphWidth = 800
-    , options = [ Color "gray", DeltaX 50, YTickmarks 6, XTickmarks 1, Scale 1.0 1.0 ]
+    , options = [ Color "#87E5CB", DeltaX 52, YTickmarks 6, XTickmarks 1, Scale 1.0 1.0 ]
     }
 
 
@@ -110,14 +110,25 @@ view : Model -> Html Msg
 view model =
     div []
         [ header
-            [ style "background-color" "skyblue"
+            [ style "color" "#6E7372"
             , style "font-size" "30px"
-            , style "padding" "3px 5px"
+            , style "font-weight" "800"
+            , style "padding" "3px 20px"
             ]
             [ text "Comparison Sorting Algorithms" ]
-        , div [] [ barChart barGraphAttributes (floatedList model.barList) ]
-        , div []
-            [ button [ onClick Randomize ] [ text "Randomize Array" ]
-            , button [ onClick InsertionSort ] [ text "Insertion Sort" ]
+        , div [ style "padding-top" "20px" ] [ barChart barGraphAttributes (floatedList model.barList) ]
+        , div [ style "margin-left" "10px" ]
+            [ sortButton Randomize "Randomize"
+            , sortButton InsertionSort "Insertion Sort"
             ]
         ]
+
+
+sortButton : Msg -> String -> Html Msg
+sortButton f s =
+    button
+        [ style "margin" "4px"
+        , style "font-size" "16px"
+        , onClick f
+        ]
+        [ text s ]
