@@ -13,6 +13,23 @@ import SimpleGraph exposing (Option(..), barChart, lineChart)
 --DATA
 
 
+insertionSort : List Int -> List Int
+insertionSort list =
+    case list of
+        [] ->
+            []
+
+        [ rest ] ->
+            [ rest ]
+
+        left :: right :: rest ->
+            if left < right then
+                left :: insertionSort (right :: rest)
+
+            else
+                right :: insertionSort (left :: rest)
+
+
 floatedList : List Int -> List Float
 floatedList list =
     List.map (\a -> toFloat a) list
@@ -56,6 +73,7 @@ init _ =
 type Msg
     = Randomize
     | RandomizedList (List Int)
+    | InsertionSort
 
 
 
@@ -70,6 +88,9 @@ update msg model =
 
         RandomizedList randomizedList ->
             ( { model | barList = randomizedList }, Cmd.none )
+
+        InsertionSort ->
+            ( { model | barList = insertionSort model.barList }, Cmd.none )
 
 
 
@@ -95,5 +116,8 @@ view model =
             ]
             [ text "Comparison Sorting Algorithms" ]
         , div [] [ barChart barGraphAttributes (floatedList model.barList) ]
-        , div [] [ button [ onClick Randomize ] [ text "Randomize Array" ] ]
+        , div []
+            [ button [ onClick Randomize ] [ text "Randomize Array" ]
+            , button [ onClick InsertionSort ] [ text "Insertion Sort" ]
+            ]
         ]
