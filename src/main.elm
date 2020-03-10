@@ -7,6 +7,7 @@ import Html.Events exposing (onClick)
 import Random exposing (Seed, generate)
 import Random.List exposing (shuffle)
 import SimpleGraph exposing (Option(..), barChart, lineChart)
+import SingleSlider exposing (..)
 
 
 
@@ -60,12 +61,25 @@ main =
 
 
 type alias Model =
-    { barList : List Int }
+    { barSize : Int
+    , barList : List Int
+    , singleSlider : SingleSlider.SingleSlider Msg
+    }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { barList = List.range 1 15 }
+    ( { barSize = 15
+      , barList = List.range 1 15
+      , singleSlider =
+            SingleSlider.init
+                { min = 1
+                , max = 500
+                , value = 250
+                , step = 10
+                , onChange = SingleSliderChange
+                }
+      }
     , Cmd.none
     )
 
@@ -74,6 +88,7 @@ type Msg
     = Randomize
     | RandomizedList (List Int)
     | InsertionSort
+    | SingleSliderChange Float
 
 
 
@@ -91,6 +106,13 @@ update msg model =
 
         InsertionSort ->
             ( { model | barList = insertionSort model.barList }, Cmd.none )
+
+        SingleSliderChange str ->
+            let
+                newSlider =
+                    SingleSlider.update str model.singleSlider
+            in
+            ( { model | singleSlider = newSlider, barList = List.range 1 (round str) }, Cmd.none )
 
 
 
@@ -121,6 +143,7 @@ view model =
             [ sortButton Randomize "Randomize"
             , sortButton InsertionSort "Insertion Sort"
             ]
+        , div [] [ SingleSlider.view model.singleSlider ]
         ]
 
 
