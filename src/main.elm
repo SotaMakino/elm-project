@@ -6,7 +6,7 @@ import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 import Random exposing (Seed, generate)
 import Random.List exposing (shuffle)
-import SimpleGraph exposing (Option(..), barChart, lineChart)
+import SimpleGraph exposing (GraphAttributes, Option(..), barChart, lineChart)
 import SingleSlider exposing (..)
 
 
@@ -36,10 +36,11 @@ floatedList list =
     List.map (\a -> toFloat a) list
 
 
+barGraphAttributes : GraphAttributes
 barGraphAttributes =
-    { graphHeight = 200
-    , graphWidth = 800
-    , options = [ Color "#87E5CB", DeltaX 52, YTickmarks 6, XTickmarks 1, Scale 1.0 1.0 ]
+    { graphHeight = 300
+    , graphWidth = 900
+    , options = [ Color "#87E5CB", YTickmarks 6, XTickmarks 1, Scale 1.0 1.0, DeltaX 52.0 ]
     }
 
 
@@ -130,20 +131,19 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    div []
+    div [ style "padding" "35px" ]
         [ header
             [ style "color" "#6E7372"
             , style "font-size" "30px"
             , style "font-weight" "800"
-            , style "padding" "3px 20px"
             ]
             [ text "Comparison Sorting Algorithms" ]
         , div [ style "padding-top" "20px" ] [ barChart barGraphAttributes (floatedList model.barList) ]
-        , div [ style "margin-left" "10px" ]
+        , div []
             [ sortButton Randomize "Randomize"
             , sortButton InsertionSort "Insertion Sort"
             ]
-        , div [] [ SingleSlider.view model.singleSlider ]
+        , div [ style "padding-top" "15px" ] [ SingleSlider.view model.singleSlider ]
         ]
 
 
