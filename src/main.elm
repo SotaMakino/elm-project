@@ -23,7 +23,7 @@ insertionSort list =
         [ rest ] ->
             [ rest ]
 
-        left :: right :: rest ->
+        left :: (right :: rest) ->
             if left < right then
                 left :: insertionSort (right :: rest)
 
@@ -34,6 +34,14 @@ insertionSort list =
 floatedList : List Int -> List Float
 floatedList list =
     List.map (\a -> toFloat a) list
+
+
+balancedAttributes : Model -> GraphAttributes
+balancedAttributes model =
+    { graphHeight = 300
+    , graphWidth = 900
+    , options = [ Color "#87E5CB", YTickmarks 6, XTickmarks 1, Scale 1.0 1.0, DeltaX model.deltaX ]
+    }
 
 
 barGraphAttributes : GraphAttributes
@@ -64,20 +72,22 @@ main =
 type alias Model =
     { barSize : Int
     , barList : List Int
+    , deltaX : Float
     , singleSlider : SingleSlider.SingleSlider Msg
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { barSize = 15
-      , barList = List.range 1 15
+    ( { barSize = 20
+      , barList = List.range 1 20
+      , deltaX = 52
       , singleSlider =
             SingleSlider.init
-                { min = 1
-                , max = 500
-                , value = 250
-                , step = 10
+                { min = 20
+                , max = 100
+                , value = 40
+                , step = 1
                 , onChange = SingleSliderChange
                 }
       }
@@ -108,12 +118,19 @@ update msg model =
         InsertionSort ->
             ( { model | barList = insertionSort model.barList }, Cmd.none )
 
-        SingleSliderChange str ->
+        SingleSliderChange flt ->
             let
                 newSlider =
-                    SingleSlider.update str model.singleSlider
+                    SingleSlider.update flt model.singleSlider
             in
-            ( { model | singleSlider = newSlider, barList = List.range 1 (round str) }, Cmd.none )
+            if flt > 80 then
+                ( { model | singleSlider = newSlider, barList = List.range 1 (round flt), deltaX = flt * 0.1 }, Cmd.none )
+
+            else if flt > 45 then
+                ( { model | singleSlider = newSlider, barList = List.range 1 (round flt), deltaX = flt * 0.2 }, Cmd.none )
+
+            else
+                ( { model | singleSlider = newSlider, barList = List.range 1 (round flt), deltaX = flt * 0.5 }, Cmd.none )
 
 
 
@@ -138,7 +155,7 @@ view model =
             , style "font-weight" "800"
             ]
             [ text "Comparison Sorting Algorithms" ]
-        , div [ style "padding-top" "20px" ] [ barChart barGraphAttributes (floatedList model.barList) ]
+        , div [ style "padding-top" "20px" ] [ barChart (balancedAttributes model) (floatedList model.barList) ]
         , div []
             [ sortButton Randomize "Randomize"
             , sortButton InsertionSort "Insertion Sort"
