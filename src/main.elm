@@ -44,14 +44,6 @@ balancedAttributes model =
     }
 
 
-barGraphAttributes : GraphAttributes
-barGraphAttributes =
-    { graphHeight = 300
-    , graphWidth = 900
-    , options = [ Color "#87E5CB", YTickmarks 6, XTickmarks 1, Scale 1.0 1.0, DeltaX 52.0 ]
-    }
-
-
 
 --MAIN
 
@@ -122,15 +114,24 @@ update msg model =
             let
                 newSlider =
                     SingleSlider.update flt model.singleSlider
+
+                newDeltaX =
+                    if flt > 80 then
+                        flt * 0.1
+
+                    else if flt > 50 then
+                        flt * 0.2
+
+                    else if flt > 45 then
+                        flt * 0.3
+
+                    else if flt > 30 then
+                        flt * 0.5
+
+                    else
+                        flt
             in
-            if flt > 80 then
-                ( { model | singleSlider = newSlider, barList = List.range 1 (round flt), deltaX = flt * 0.1 }, Cmd.none )
-
-            else if flt > 45 then
-                ( { model | singleSlider = newSlider, barList = List.range 1 (round flt), deltaX = flt * 0.2 }, Cmd.none )
-
-            else
-                ( { model | singleSlider = newSlider, barList = List.range 1 (round flt), deltaX = flt * 0.5 }, Cmd.none )
+            ( { model | singleSlider = newSlider, barList = List.range 1 (round flt), deltaX = newDeltaX }, Cmd.none )
 
 
 
