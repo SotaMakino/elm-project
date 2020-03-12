@@ -62,21 +62,15 @@ main =
 
 
 type alias Model =
-    { barSize : Int
-    , barList : List Int
+    { barList : List Int
     , deltaX : Float
     , singleSlider : SingleSlider.SingleSlider Msg
     }
 
 
-minFormatter =
-    always ""
-
-
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { barSize = 20
-      , barList = List.range 1 20
+    ( { barList = List.range 1 20
       , deltaX = 52
       , singleSlider =
             SingleSlider.init
@@ -123,8 +117,14 @@ update msg model =
                     SingleSlider.update flt model.singleSlider
 
                 newDeltaX =
-                    if flt > 80 then
-                        flt * 0.1
+                    if flt > 90 then
+                        flt * 0.09
+
+                    else if flt > 80 then
+                        flt * 0.11
+
+                    else if flt > 66 then
+                        flt * 0.15
 
                     else if flt > 50 then
                         flt * 0.2
