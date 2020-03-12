@@ -69,6 +69,10 @@ type alias Model =
     }
 
 
+minFormatter =
+    always ""
+
+
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { barSize = 20
@@ -78,10 +82,13 @@ init _ =
             SingleSlider.init
                 { min = 20
                 , max = 100
-                , value = 40
+                , value = 20
                 , step = 1
                 , onChange = SingleSliderChange
                 }
+                |> SingleSlider.withMinFormatter (always "")
+                |> SingleSlider.withMaxFormatter (always "")
+                |> SingleSlider.withValueFormatter (\n _ -> String.concat [ "List Size: ", String.fromFloat n ])
       }
     , Cmd.none
     )
@@ -166,10 +173,10 @@ view model =
 
 
 sortButton : Msg -> String -> Html Msg
-sortButton f s =
+sortButton message title =
     button
         [ style "margin" "4px"
         , style "font-size" "16px"
-        , onClick f
+        , onClick message
         ]
-        [ text s ]
+        [ text title ]
