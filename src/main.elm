@@ -70,13 +70,13 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { barList = List.range 1 20
-      , deltaX = 52
+    ( { barList = List.range 1 25
+      , deltaX = 25
       , singleSlider =
             SingleSlider.init
-                { min = 20
+                { min = 25
                 , max = 100
-                , value = 20
+                , value = 25
                 , step = 1
                 , onChange = SingleSliderChange
                 }
@@ -118,7 +118,7 @@ update msg model =
 
                 newDeltaX =
                     if flt > 90 then
-                        flt * 0.09
+                        flt * 0.08
 
                     else if flt > 80 then
                         flt * 0.11
