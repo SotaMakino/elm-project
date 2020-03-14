@@ -47,7 +47,7 @@ balancedAttributes model =
 
 dummyPosix : Posix
 dummyPosix =
-    millisToPosix 1000
+    millisToPosix 0
 
 
 
@@ -67,10 +67,16 @@ main =
 --MODEL
 
 
+type State
+    = NoOp
+    | InsertionSorting
+
+
 type alias Model =
     { barList : List Int
     , deltaX : Float
     , singleSlider : SingleSlider.SingleSlider Msg
+    , state : State
     }
 
 
@@ -89,6 +95,7 @@ init _ =
                 |> SingleSlider.withMinFormatter (always "")
                 |> SingleSlider.withMaxFormatter (always "")
                 |> SingleSlider.withValueFormatter (\n _ -> String.concat [ "List Size: ", String.fromFloat n ])
+      , state = NoOp
       }
     , Cmd.none
     )
@@ -109,13 +116,13 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Randomize ->
-            ( model, generate RandomizedList (shuffle model.barList) )
+            ( { model | state = NoOp }, generate RandomizedList (shuffle model.barList) )
 
         RandomizedList randomizedList ->
             ( { model | barList = randomizedList }, Cmd.none )
 
         InsertionSort _ ->
-            ( { model | barList = insertionSort model.barList }, Cmd.none )
+            ( { model | barList = insertionSort model.barList, state = InsertionSorting }, Cmd.none )
 
         SingleSliderChange flt ->
             let
@@ -153,7 +160,12 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Time.every 1000 InsertionSort
+    case model.state of
+        InsertionSorting ->
+            Time.every 1000 InsertionSort
+
+        NoOp ->
+            Sub.none
 
 
 
