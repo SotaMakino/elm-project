@@ -8,6 +8,7 @@ import Random exposing (Seed, generate)
 import Random.List exposing (shuffle)
 import SimpleGraph exposing (GraphAttributes, Option(..), barChart, lineChart)
 import SingleSlider exposing (..)
+import Time exposing (..)
 
 
 
@@ -42,6 +43,11 @@ balancedAttributes model =
     , graphWidth = 900
     , options = [ Color "#87E5CB", YTickmarks 6, XTickmarks 1, Scale 1.0 1.0, DeltaX model.deltaX ]
     }
+
+
+dummyPosix : Posix
+dummyPosix =
+    millisToPosix 1000
 
 
 
@@ -91,7 +97,7 @@ init _ =
 type Msg
     = Randomize
     | RandomizedList (List Int)
-    | InsertionSort
+    | InsertionSort Time.Posix
     | SingleSliderChange Float
 
 
@@ -108,7 +114,7 @@ update msg model =
         RandomizedList randomizedList ->
             ( { model | barList = randomizedList }, Cmd.none )
 
-        InsertionSort ->
+        InsertionSort _ ->
             ( { model | barList = insertionSort model.barList }, Cmd.none )
 
         SingleSliderChange flt ->
@@ -147,7 +153,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Time.every 1000 InsertionSort
 
 
 
@@ -166,7 +172,7 @@ view model =
         , div [ style "padding-top" "20px" ] [ barChart (balancedAttributes model) (floatedList model.barList) ]
         , div []
             [ sortButton Randomize "Randomize"
-            , sortButton InsertionSort "Insertion Sort"
+            , sortButton (InsertionSort dummyPosix) "Insertion Sort"
             ]
         , div [ style "padding-top" "15px" ] [ SingleSlider.view model.singleSlider ]
         ]
