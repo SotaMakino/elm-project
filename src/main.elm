@@ -94,7 +94,7 @@ init _ =
                 }
                 |> SingleSlider.withMinFormatter (always "")
                 |> SingleSlider.withMaxFormatter (always "")
-                |> SingleSlider.withValueFormatter (\n _ -> String.concat [ "List Size: ", String.fromFloat n ])
+                |> SingleSlider.withValueFormatter (\n _ -> String.concat [ "> List Size: ", String.fromFloat n ])
       , state = NoOp
       }
     , Cmd.none
@@ -116,10 +116,10 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Randomize ->
-            ( { model | state = NoOp }, generate RandomizedList (shuffle model.barList) )
+            ( model, generate RandomizedList (shuffle model.barList) )
 
         RandomizedList randomizedList ->
-            ( { model | barList = randomizedList }, Cmd.none )
+            ( { model | barList = randomizedList, state = NoOp }, Cmd.none )
 
         InsertionSort _ ->
             ( { model | barList = insertionSort model.barList, state = InsertionSorting }, Cmd.none )
@@ -162,7 +162,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     case model.state of
         InsertionSorting ->
-            Time.every 1000 InsertionSort
+            Time.every 400 InsertionSort
 
         NoOp ->
             Sub.none
@@ -186,15 +186,17 @@ view model =
             [ sortButton Randomize "Randomize"
             , sortButton (InsertionSort dummyPosix) "Insertion Sort"
             ]
-        , div [ style "padding-top" "15px" ] [ SingleSlider.view model.singleSlider ]
+        , div [ style "padding-top" "10px" ] [ SingleSlider.view model.singleSlider ]
         ]
 
 
 sortButton : Msg -> String -> Html Msg
 sortButton message title =
     button
-        [ style "margin" "4px"
+        [ style "margin" "13px 5px"
         , style "font-size" "16px"
+        , style "border" "0.1em solid #6E7372"
+        , style "padding" "0.5em 1em"
         , onClick message
         ]
         [ text title ]
