@@ -15,7 +15,6 @@ import Time exposing (..)
 --DATA
 
 
-insertionSort : List Int -> List Int
 insertionSort list =
     case list of
         [] ->
@@ -34,7 +33,7 @@ insertionSort list =
 
 floatedList : List Int -> List Float
 floatedList list =
-    List.map (\a -> toFloat a) list
+    List.map (\item -> toFloat item) list
 
 
 balancedAttributes : Model -> GraphAttributes
@@ -94,7 +93,7 @@ init _ =
                 }
                 |> SingleSlider.withMinFormatter (always "")
                 |> SingleSlider.withMaxFormatter (always "")
-                |> SingleSlider.withValueFormatter (\n _ -> String.concat [ "> List Size: ", String.fromFloat n ])
+                |> SingleSlider.withValueFormatter (\n _ -> String.concat [ "- List Size: ", String.fromFloat n ])
       , state = Stop
       }
     , Cmd.none
@@ -125,8 +124,9 @@ update msg model =
         RandomizedList randomizedList ->
             ( { model | barList = randomizedList, state = Stop }, Cmd.none )
 
+        --TODO: change state
         InsertionSort _ ->
-            ( { model | barList = insertionSort model.barList, state = InsertionSorting }, Cmd.none )
+            ( { model | barList = insertionSort model.barList, state = Stop }, Cmd.none )
 
         SingleSliderChange flt ->
             let
@@ -207,7 +207,7 @@ sortButton message title isProminent =
 
         backgroundColor =
             if isProminent == True then
-                "#F08080"
+                "f08080"
 
             else
                 "#fff"
