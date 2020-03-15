@@ -68,7 +68,7 @@ main =
 
 
 type State
-    = NoOp
+    = Stop
     | InsertionSorting
 
 
@@ -95,7 +95,7 @@ init _ =
                 |> SingleSlider.withMinFormatter (always "")
                 |> SingleSlider.withMaxFormatter (always "")
                 |> SingleSlider.withValueFormatter (\n _ -> String.concat [ "> List Size: ", String.fromFloat n ])
-      , state = NoOp
+      , state = Stop
       }
     , Cmd.none
     )
@@ -106,6 +106,7 @@ type Msg
     | RandomizedList (List Int)
     | InsertionSort Time.Posix
     | SingleSliderChange Float
+    | NoOp
 
 
 
@@ -115,11 +116,14 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        NoOp ->
+            ( { model | state = Stop }, Cmd.none )
+
         Randomize ->
             ( model, generate RandomizedList (shuffle model.barList) )
 
         RandomizedList randomizedList ->
-            ( { model | barList = randomizedList, state = NoOp }, Cmd.none )
+            ( { model | barList = randomizedList, state = Stop }, Cmd.none )
 
         InsertionSort _ ->
             ( { model | barList = insertionSort model.barList, state = InsertionSorting }, Cmd.none )
@@ -164,7 +168,7 @@ subscriptions model =
         InsertionSorting ->
             Time.every 400 InsertionSort
 
-        NoOp ->
+        Stop ->
             Sub.none
 
 
@@ -176,27 +180,46 @@ view : Model -> Html Msg
 view model =
     div [ style "padding" "35px" ]
         [ header
-            [ style "color" "#6E7372"
+            [ style "color" "#6e7372"
             , style "font-size" "30px"
             , style "font-weight" "800"
             ]
             [ text "Comparison Sorting Algorithms" ]
         , div [ style "padding-top" "20px" ] [ barChart (balancedAttributes model) (floatedList model.barList) ]
         , div []
-            [ sortButton Randomize "Randomize"
-            , sortButton (InsertionSort dummyPosix) "Insertion Sort"
+            [ sortButton Randomize "Randomize" False
+            , sortButton (InsertionSort dummyPosix) "Insertion Sort" False
+            , sortButton NoOp "Stop" True
             ]
         , div [ style "padding-top" "10px" ] [ SingleSlider.view model.singleSlider ]
         ]
 
 
-sortButton : Msg -> String -> Html Msg
-sortButton message title =
+sortButton : Msg -> String -> Bool -> Html Msg
+sortButton message title isProminent =
+    let
+        color =
+            if isProminent == True then
+                "#fff"
+
+            else
+                "#333"
+
+        backgroundColor =
+            if isProminent == True then
+                "#F08080"
+
+            else
+                "#fff"
+    in
     button
         [ style "margin" "13px 5px"
         , style "font-size" "16px"
-        , style "border" "0.1em solid #6E7372"
+        , style "font-weight" "500"
+        , style "border" "0.1em solid #6e7372"
         , style "padding" "0.5em 1em"
+        , style "color" color
+        , style "background-color" backgroundColor
         , onClick message
         ]
         [ text title ]
