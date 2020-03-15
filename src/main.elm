@@ -15,6 +15,22 @@ import Time exposing (..)
 --DATA
 
 
+selectionSort list =
+    case list of
+        [] ->
+            []
+
+        [ rest ] ->
+            [ rest ]
+
+        left :: (right :: rest) ->
+            if List.minimum list == Just left then
+                left :: selectionSort (right :: rest)
+
+            else
+                right :: selectionSort (left :: rest)
+
+
 insertionSort list =
     case list of
         [] ->
@@ -69,6 +85,7 @@ main =
 type State
     = Stop
     | InsertionSorting
+    | SelectionSorting
 
 
 type alias Model =
@@ -104,6 +121,7 @@ type Msg
     = Randomize
     | RandomizedList (List Int)
     | InsertionSort Time.Posix
+    | SelectionSort Time.Posix
     | SingleSliderChange Float
     | NoOp
 
@@ -124,9 +142,11 @@ update msg model =
         RandomizedList randomizedList ->
             ( { model | barList = randomizedList, state = Stop }, Cmd.none )
 
-        --TODO: change state
         InsertionSort _ ->
-            ( { model | barList = insertionSort model.barList, state = Stop }, Cmd.none )
+            ( { model | barList = insertionSort model.barList, state = InsertionSorting }, Cmd.none )
+
+        SelectionSort _ ->
+            ( { model | barList = selectionSort model.barList, state = SelectionSorting }, Cmd.none )
 
         SingleSliderChange flt ->
             let
@@ -168,6 +188,9 @@ subscriptions model =
         InsertionSorting ->
             Time.every 400 InsertionSort
 
+        SelectionSorting ->
+            Time.every 400 SelectionSort
+
         Stop ->
             Sub.none
 
@@ -189,6 +212,7 @@ view model =
         , div []
             [ sortButton Randomize "Randomize" False
             , sortButton (InsertionSort dummyPosix) "Insertion Sort" False
+            , sortButton (SelectionSort dummyPosix) "Selection Sort" False
             , sortButton NoOp "Stop" True
             ]
         , div [ style "padding-top" "10px" ] [ SingleSlider.view model.singleSlider ]
