@@ -15,22 +15,6 @@ import Time exposing (..)
 --DATA
 
 
-selectionSort list =
-    case list of
-        [] ->
-            []
-
-        [ rest ] ->
-            [ rest ]
-
-        left :: (right :: rest) ->
-            if List.minimum list == Just left then
-                left :: selectionSort (right :: rest)
-
-            else
-                right :: selectionSort (left :: rest)
-
-
 insertionSort list =
     case list of
         [] ->
@@ -47,9 +31,45 @@ insertionSort list =
                 right :: insertionSort (left :: rest)
 
 
+selectionSort list =
+    case list of
+        [] ->
+            []
+
+        [ rest ] ->
+            [ rest ]
+
+        left :: (right :: rest) ->
+            if List.minimum list == Just left then
+                left :: selectionSort (right :: rest)
+
+            else
+                right :: selectionSort (left :: rest)
+
+
+quickSort list =
+    case list of
+        [] ->
+            []
+
+        pivot :: rest ->
+            let
+                smaller =
+                    List.filter (\n -> n <= pivot) rest
+
+                bigger =
+                    List.filter (\n -> n > pivot) rest
+            in
+            if List.sort smaller == smaller then
+                smaller ++ [ pivot ] ++ quickSort bigger
+
+            else
+                quickSort smaller ++ [ pivot ] ++ bigger
+
+
 floatedList : List Int -> List Float
 floatedList list =
-    List.map (\item -> toFloat item) list
+    List.map (\n -> toFloat n) list
 
 
 balancedAttributes : Model -> GraphAttributes
@@ -86,6 +106,7 @@ type State
     = Stop
     | InsertionSorting
     | SelectionSorting
+    | QuickSorting
 
 
 type alias Model =
@@ -122,6 +143,7 @@ type Msg
     | RandomizedList (List Int)
     | InsertionSort Time.Posix
     | SelectionSort Time.Posix
+    | QuickSort Time.Posix
     | SingleSliderChange Float
     | NoOp
 
@@ -147,6 +169,9 @@ update msg model =
 
         SelectionSort _ ->
             ( { model | barList = selectionSort model.barList, state = SelectionSorting }, Cmd.none )
+
+        QuickSort _ ->
+            ( { model | barList = quickSort model.barList, state = QuickSorting }, Cmd.none )
 
         SingleSliderChange flt ->
             let
@@ -191,6 +216,9 @@ subscriptions model =
         SelectionSorting ->
             Time.every 400 SelectionSort
 
+        QuickSorting ->
+            Time.every 400 QuickSort
+
         Stop ->
             Sub.none
 
@@ -213,6 +241,7 @@ view model =
             [ sortButton Randomize "Randomize" False
             , sortButton (InsertionSort dummyPosix) "Insertion Sort" False
             , sortButton (SelectionSort dummyPosix) "Selection Sort" False
+            , sortButton (QuickSort dummyPosix) "Quick Sort" False
             , sortButton NoOp "Stop" True
             ]
         , div [ style "padding-top" "10px" ] [ SingleSlider.view model.singleSlider ]
