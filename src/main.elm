@@ -8,7 +8,7 @@ import Random exposing (Seed, generate)
 import Random.List exposing (shuffle)
 import SimpleGraph exposing (GraphAttributes, Option(..), barChart, lineChart)
 import SingleSlider exposing (..)
-import Time exposing (..)
+import Time exposing (Posix, millisToPosix)
 
 
 
@@ -75,11 +75,11 @@ floatedList list =
     List.map (\n -> toFloat n) list
 
 
-balancedAttributes : Model -> GraphAttributes
-balancedAttributes model =
+adjustedGraphAttributes : Model -> GraphAttributes
+adjustedGraphAttributes model =
     { graphHeight = 300
     , graphWidth = 900
-    , options = [ Color "#87E5CB", YTickmarks 6, XTickmarks 1, Scale 1.0 1.0, DeltaX model.deltaX ]
+    , options = [ Color "#87e5cb", YTickmarks 6, XTickmarks 1, Scale 1.0 1.0, DeltaX model.deltaX ]
     }
 
 
@@ -142,13 +142,13 @@ init _ =
 
 
 type Msg
-    = Randomize
+    = NoOp
+    | Randomize
     | RandomizedList (List Int)
     | InsertionSort Time.Posix
     | SelectionSort Time.Posix
     | QuickSort Time.Posix
     | SingleSliderChange Float
-    | NoOp
 
 
 
@@ -239,7 +239,7 @@ view model =
             , style "font-weight" "800"
             ]
             [ text "Comparison Sorting Algorithms" ]
-        , div [ style "padding-top" "20px" ] [ barChart (balancedAttributes model) (floatedList model.barList) ]
+        , div [ style "padding-top" "20px" ] [ barChart (adjustedGraphAttributes model) (floatedList model.barList) ]
         , div []
             [ sortButton Randomize "Randomize" False
             , sortButton (InsertionSort dummyPosix) "Insertion Sort" False
