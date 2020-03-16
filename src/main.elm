@@ -15,6 +15,7 @@ import Time exposing (..)
 --DATA
 
 
+insertionSort : List Int -> List Int
 insertionSort list =
     case list of
         [] ->
@@ -31,6 +32,7 @@ insertionSort list =
                 right :: insertionSort (left :: rest)
 
 
+selectionSort : List Int -> List Int
 selectionSort list =
     case list of
         [] ->
@@ -47,6 +49,7 @@ selectionSort list =
                 right :: selectionSort (left :: rest)
 
 
+quickSort : List Int -> List Int
 quickSort list =
     case list of
         [] ->
