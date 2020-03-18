@@ -21,15 +21,15 @@ insertionSort list =
         [] ->
             []
 
-        [ rest ] ->
-            [ rest ]
+        [ _ ] ->
+            list
 
-        left :: (right :: rest) ->
-            if left < right then
-                left :: insertionSort (right :: rest)
+        first :: (second :: rest) ->
+            if first < second then
+                first :: insertionSort (second :: rest)
 
             else
-                right :: insertionSort (left :: rest)
+                second :: insertionSort (first :: rest)
 
 
 selectionSort : List Int -> List Int
@@ -38,15 +38,15 @@ selectionSort list =
         [] ->
             []
 
-        [ rest ] ->
-            [ rest ]
+        [ _ ] ->
+            list
 
-        left :: (right :: rest) ->
-            if List.minimum list == Just left then
-                left :: selectionSort (right :: rest)
+        first :: (second :: rest) ->
+            if List.minimum list == Just first then
+                first :: selectionSort (second :: rest)
 
             else
-                right :: selectionSort (left :: rest)
+                second :: selectionSort (first :: rest)
 
 
 quickSort : List Int -> List Int
@@ -68,6 +68,58 @@ quickSort list =
 
             else
                 quickSort smaller ++ [ pivot ] ++ bigger
+
+
+mergeSort list =
+    case list of
+        [] ->
+            list
+
+        [ _ ] ->
+            list
+
+        _ ->
+            let
+                ( halfOne, halfTwo ) =
+                    split list
+            in
+            merge halfOne halfTwo
+
+
+split : List Int -> ( List Int, List Int )
+split list =
+    splitHelp list 1 [] []
+
+
+splitHelp : List Int -> Int -> List Int -> List Int -> ( List Int, List Int )
+splitHelp list num halfOne halfTwo =
+    case list of
+        [] ->
+            ( halfOne, halfTwo )
+
+        first :: rest ->
+            if (num // 2) == 1 then
+                splitHelp rest (num + 1) (first :: halfOne) halfTwo
+
+            else
+                splitHelp rest (num + 1) halfOne (first :: halfTwo)
+
+
+merge : List Int -> List Int -> List Int
+merge listOne listTwo =
+    case ( listOne, listTwo ) of
+        ( _, [] ) ->
+            listOne
+
+        ( [], _ ) ->
+            listTwo
+
+        ( frontOne :: restOne, frontTwo :: restTwo ) ->
+            if frontOne < frontTwo then
+                frontOne :: merge restOne listTwo
+
+            else
+                frontTwo :: merge restTwo listOne
 
 
 floatedList : List Int -> List Float
@@ -110,6 +162,7 @@ type State
     | InsertionSorting
     | SelectionSorting
     | QuickSorting
+    | MergeSorting
 
 
 type alias Model =
@@ -148,6 +201,7 @@ type Msg
     | InsertionSort Time.Posix
     | SelectionSort Time.Posix
     | QuickSort Time.Posix
+    | MergeSort Time.Posix
     | SingleSliderChange Float
 
 
@@ -175,6 +229,9 @@ update msg model =
 
         QuickSort _ ->
             ( { model | barList = quickSort model.barList, state = QuickSorting }, Cmd.none )
+
+        MergeSort _ ->
+            ( { model | barList = mergeSort model.barList, state = MergeSorting }, Cmd.none )
 
         SingleSliderChange flt ->
             let
@@ -222,6 +279,9 @@ subscriptions model =
         QuickSorting ->
             Time.every 400 QuickSort
 
+        MergeSorting ->
+            Time.every 400 MergeSort
+
         Stop ->
             Sub.none
 
@@ -245,9 +305,10 @@ view model =
             , sortButton (InsertionSort dummyPosix) "Insertion Sort" False
             , sortButton (SelectionSort dummyPosix) "Selection Sort" False
             , sortButton (QuickSort dummyPosix) "Quick Sort" False
+            , sortButton (MergeSort dummyPosix) "Merge Sort" False
             , sortButton NoOp "Stop" True
             ]
-        , div [ style "padding-top" "10px" ] [ SingleSlider.view model.singleSlider ]
+        , div [ style "padding-top" "15px" ] [ SingleSlider.view model.singleSlider ]
         ]
 
 
