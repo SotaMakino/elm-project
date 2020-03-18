@@ -83,7 +83,7 @@ mergeSort list =
                 ( halfOne, halfTwo ) =
                     split list
             in
-            merge halfOne halfTwo
+            merge (mergeSort halfOne) (mergeSort halfTwo)
 
 
 split : List Int -> ( List Int, List Int )
