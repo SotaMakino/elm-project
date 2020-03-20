@@ -324,7 +324,7 @@ sortButton message title isProminent =
 
         backgroundColor =
             if isProminent == True then
-                "f08080"
+                "#f08080"
 
             else
                 "#fff"
