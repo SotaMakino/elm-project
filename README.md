@@ -3,5 +3,5 @@ A project to learn the basics of Elm, a functional language, and sort algorithms
 
 ### Run
 ```
-elm-reactor
+elm reactor
 ```
