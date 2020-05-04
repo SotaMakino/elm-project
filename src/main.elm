@@ -2,7 +2,7 @@ module Main exposing (Model, Msg, init, update, view)
 
 import Browser
 import Html exposing (..)
-import Html.Attributes exposing (style)
+import Html.Attributes exposing (disabled, style)
 import Html.Events exposing (onClick)
 import Random exposing (Seed, generate)
 import Random.List exposing (shuffle)
@@ -131,7 +131,13 @@ adjustedGraphAttributes : Model -> GraphAttributes
 adjustedGraphAttributes model =
     { graphHeight = 300
     , graphWidth = 900
-    , options = [ Color "#87e5cb", YTickmarks 6, XTickmarks 1, Scale 1.0 1.0, DeltaX model.deltaX ]
+    , options =
+        [ Color "#87e5cb"
+        , YTickmarks 6
+        , XTickmarks 1
+        , Scale 1.0 1.0
+        , DeltaX model.deltaX
+        ]
     }
 
 
@@ -162,6 +168,25 @@ stateString state =
             "Merge Sort"
 
 
+nextMsg : PrevState -> Msg
+nextMsg prevState =
+    case prevState of
+        None ->
+            NoOp
+
+        Insertion ->
+            InsertionSort dummyPosix
+
+        Selection ->
+            SelectionSort dummyPosix
+
+        Quick ->
+            QuickSort dummyPosix
+
+        Merge ->
+            MergeSort dummyPosix
+
+
 
 --MAIN
 
@@ -188,11 +213,21 @@ type State
     | MergeSorting
 
 
+type PrevState
+    = None
+    | Insertion
+    | Selection
+    | Quick
+    | Merge
+
+
 type alias Model =
     { barList : List Int
     , deltaX : Float
     , singleSlider : SingleSlider.SingleSlider Msg
     , state : State
+    , prevState : PrevState
+    , isStopped : Bool
     }
 
 
@@ -210,8 +245,16 @@ init _ =
                 }
                 |> SingleSlider.withMinFormatter (always "")
                 |> SingleSlider.withMaxFormatter (always "")
-                |> SingleSlider.withValueFormatter (\n _ -> String.concat [ "- List Size: ", String.fromFloat n ])
+                |> SingleSlider.withValueFormatter
+                    (\n _ ->
+                        String.concat
+                            [ "- List Size: "
+                            , String.fromFloat n
+                            ]
+                    )
       , state = Stop
+      , prevState = None
+      , isStopped = False
       }
     , Cmd.none
     )
@@ -236,25 +279,66 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NoOp ->
-            ( { model | state = Stop }, Cmd.none )
+            ( { model
+                | state = Stop
+                , isStopped = not model.isStopped
+              }
+            , Cmd.none
+            )
 
         Randomize ->
-            ( { model | state = Randomizing }, generate RandomizedList (shuffle model.barList) )
+            ( model
+            , generate RandomizedList (shuffle model.barList)
+            )
 
         RandomizedList randomizedList ->
-            ( { model | barList = randomizedList, state = Stop }, Cmd.none )
+            ( { model
+                | state = Randomizing
+                , barList = randomizedList
+                , isStopped = False
+              }
+            , Cmd.none
+            )
 
         InsertionSort _ ->
-            ( { model | barList = insertionSort model.barList, state = InsertionSorting }, Cmd.none )
+            ( { model
+                | barList = insertionSort model.barList
+                , state = InsertionSorting
+                , prevState = Insertion
+                , isStopped = False
+              }
+            , Cmd.none
+            )
 
         SelectionSort _ ->
-            ( { model | barList = selectionSort model.barList, state = SelectionSorting }, Cmd.none )
+            ( { model
+                | barList = selectionSort model.barList
+                , state = SelectionSorting
+                , prevState = Selection
+                , isStopped = False
+              }
+            , Cmd.none
+            )
 
         QuickSort _ ->
-            ( { model | barList = quickSort model.barList, state = QuickSorting }, Cmd.none )
+            ( { model
+                | barList = quickSort model.barList
+                , state = QuickSorting
+                , prevState = Quick
+                , isStopped = False
+              }
+            , Cmd.none
+            )
 
         MergeSort _ ->
-            ( { model | barList = mergeSort model.barList, state = MergeSorting }, Cmd.none )
+            ( { model
+                | barList = mergeSort model.barList
+                , state = MergeSorting
+                , prevState = Merge
+                , isStopped = False
+              }
+            , Cmd.none
+            )
 
         SingleSliderChange flt ->
             let
@@ -283,7 +367,13 @@ update msg model =
                     else
                         flt
             in
-            ( { model | singleSlider = newSlider, barList = List.range 1 (round flt), deltaX = newDeltaX }, Cmd.none )
+            ( { model
+                | singleSlider = newSlider
+                , barList = List.range 1 (round flt)
+                , deltaX = newDeltaX
+              }
+            , Cmd.none
+            )
 
 
 
@@ -327,20 +417,41 @@ view model =
             [ text "Comparison Sorting Algorithms" ]
         , div [ style "padding-top" "20px" ] [ barChart (adjustedGraphAttributes model) (floatedList model.barList) ]
         , div []
-            [ sortButton Randomize Randomizing False
-            , sortButton (InsertionSort dummyPosix) InsertionSorting False
-            , sortButton (SelectionSort dummyPosix) SelectionSorting False
-            , sortButton (QuickSort dummyPosix) QuickSorting False
-            , sortButton (MergeSort dummyPosix) MergeSorting False
-            , sortButton NoOp Stop True
+            [ sortButton Randomize Randomizing model.prevState model.isStopped False
+            , sortButton (InsertionSort dummyPosix) InsertionSorting model.prevState model.isStopped False
+            , sortButton (SelectionSort dummyPosix) SelectionSorting model.prevState model.isStopped False
+            , sortButton (QuickSort dummyPosix) QuickSorting model.prevState model.isStopped False
+            , sortButton (MergeSort dummyPosix) MergeSorting model.prevState model.isStopped False
+            , sortButton NoOp Stop model.prevState model.isStopped True
             ]
         , div [ style "padding-top" "15px" ] [ SingleSlider.view model.singleSlider ]
         ]
 
 
-sortButton : Msg -> State -> Bool -> Html Msg
-sortButton message state isProminent =
+sortButton : Msg -> State -> PrevState -> Bool -> Bool -> Html Msg
+sortButton message state prevState isStopped isProminent =
     let
+        isDisabled =
+            if prevState == None && isProminent == True then
+                True
+
+            else
+                False
+
+        nextOp =
+            if isStopped == True && isProminent == True then
+                nextMsg prevState
+
+            else
+                message
+
+        title =
+            if isStopped == True && state == Stop then
+                "Restart"
+
+            else
+                stateString state
+
         color =
             if isProminent == True then
                 "#fff"
@@ -363,6 +474,7 @@ sortButton message state isProminent =
         , style "padding" "0.5em 1em"
         , style "color" color
         , style "background-color" backgroundColor
-        , onClick message
+        , onClick nextOp
+        , disabled isDisabled
         ]
-        [ text (stateString state) ]
+        [ text title ]
