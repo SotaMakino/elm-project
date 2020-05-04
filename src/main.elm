@@ -140,6 +140,28 @@ dummyPosix =
     millisToPosix 0
 
 
+stateString : State -> String
+stateString state =
+    case state of
+        Stop ->
+            "Stop"
+
+        Randomizing ->
+            "Randomize"
+
+        InsertionSorting ->
+            "Insertion Sort"
+
+        SelectionSorting ->
+            "Selectioin Sort"
+
+        QuickSorting ->
+            "Quick Sort"
+
+        MergeSorting ->
+            "Merge Sort"
+
+
 
 --MAIN
 
@@ -159,6 +181,7 @@ main =
 
 type State
     = Stop
+    | Randomizing
     | InsertionSorting
     | SelectionSorting
     | QuickSorting
@@ -216,7 +239,7 @@ update msg model =
             ( { model | state = Stop }, Cmd.none )
 
         Randomize ->
-            ( model, generate RandomizedList (shuffle model.barList) )
+            ( { model | state = Randomizing }, generate RandomizedList (shuffle model.barList) )
 
         RandomizedList randomizedList ->
             ( { model | barList = randomizedList, state = Stop }, Cmd.none )
@@ -282,6 +305,9 @@ subscriptions model =
         MergeSorting ->
             Time.every 400 MergeSort
 
+        Randomizing ->
+            Sub.none
+
         Stop ->
             Sub.none
 
@@ -301,19 +327,19 @@ view model =
             [ text "Comparison Sorting Algorithms" ]
         , div [ style "padding-top" "20px" ] [ barChart (adjustedGraphAttributes model) (floatedList model.barList) ]
         , div []
-            [ sortButton Randomize "Randomize" False
-            , sortButton (InsertionSort dummyPosix) "Insertion Sort" False
-            , sortButton (SelectionSort dummyPosix) "Selection Sort" False
-            , sortButton (QuickSort dummyPosix) "Quick Sort" False
-            , sortButton (MergeSort dummyPosix) "Merge Sort" False
-            , sortButton NoOp "Stop" True
+            [ sortButton Randomize Randomizing False
+            , sortButton (InsertionSort dummyPosix) InsertionSorting False
+            , sortButton (SelectionSort dummyPosix) SelectionSorting False
+            , sortButton (QuickSort dummyPosix) QuickSorting False
+            , sortButton (MergeSort dummyPosix) MergeSorting False
+            , sortButton NoOp Stop True
             ]
         , div [ style "padding-top" "15px" ] [ SingleSlider.view model.singleSlider ]
         ]
 
 
-sortButton : Msg -> String -> Bool -> Html Msg
-sortButton message title isProminent =
+sortButton : Msg -> State -> Bool -> Html Msg
+sortButton message state isProminent =
     let
         color =
             if isProminent == True then
@@ -339,4 +365,4 @@ sortButton message title isProminent =
         , style "background-color" backgroundColor
         , onClick message
         ]
-        [ text title ]
+        [ text (stateString state) ]
