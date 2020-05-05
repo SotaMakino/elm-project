@@ -294,6 +294,7 @@ update msg model =
         RandomizedList randomizedList ->
             ( { model
                 | state = Randomizing
+                , prevState = None
                 , barList = randomizedList
                 , isStopped = False
               }
@@ -408,38 +409,43 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    div [ style "padding" "35px" ]
+    div [ style "padding" "30px" ]
         [ header
             [ style "color" "#6e7372"
             , style "font-size" "30px"
             , style "font-weight" "800"
             ]
             [ text "Comparison Sorting Algorithms" ]
-        , div [ style "padding-top" "20px" ] [ barChart (adjustedGraphAttributes model) (floatedList model.barList) ]
+        , div [ style "padding-top" "35px" ] [ barChart (adjustedGraphAttributes model) (floatedList model.barList) ]
         , div []
-            [ sortButton Randomize Randomizing model.prevState model.isStopped False
-            , sortButton (InsertionSort dummyPosix) InsertionSorting model.prevState model.isStopped False
-            , sortButton (SelectionSort dummyPosix) SelectionSorting model.prevState model.isStopped False
-            , sortButton (QuickSort dummyPosix) QuickSorting model.prevState model.isStopped False
-            , sortButton (MergeSort dummyPosix) MergeSorting model.prevState model.isStopped False
-            , sortButton NoOp Stop model.prevState model.isStopped True
+            [ sortButton Randomize Randomizing
+            , sortButton (InsertionSort dummyPosix) InsertionSorting
+            , sortButton (SelectionSort dummyPosix) SelectionSorting
+            , sortButton (QuickSort dummyPosix) QuickSorting
+            , sortButton (MergeSort dummyPosix) MergeSorting
+            , controllButton NoOp Stop model.prevState model.isStopped
             ]
         , div [ style "padding-top" "15px" ] [ SingleSlider.view model.singleSlider ]
         ]
 
 
-sortButton : Msg -> State -> PrevState -> Bool -> Bool -> Html Msg
-sortButton message state prevState isStopped isProminent =
+sortButton : Msg -> State -> Html Msg
+sortButton message state =
+    baseButton message False (stateString state) "#333" "#fff"
+
+
+controllButton : Msg -> State -> PrevState -> Bool -> Html Msg
+controllButton message state prevState isStopped =
     let
         isDisabled =
-            if prevState == None && isProminent == True then
+            if prevState == None then
                 True
 
             else
                 False
 
         nextOp =
-            if isStopped == True && isProminent == True then
+            if isStopped == True then
                 nextMsg prevState
 
             else
@@ -451,21 +457,16 @@ sortButton message state prevState isStopped isProminent =
 
             else
                 stateString state
-
-        color =
-            if isProminent == True then
-                "#fff"
-
-            else
-                "#333"
-
-        backgroundColor =
-            if isProminent == True then
-                "#f08080"
-
-            else
-                "#fff"
     in
+    baseButton nextOp
+        isDisabled
+        title
+        "#fff"
+        "#f08080"
+
+
+baseButton : Msg -> Bool -> String -> String -> String -> Html Msg
+baseButton message isDisabled title color backgroundColor =
     button
         [ style "margin" "13px 5px"
         , style "font-size" "16px"
@@ -474,7 +475,7 @@ sortButton message state prevState isStopped isProminent =
         , style "padding" "0.5em 1em"
         , style "color" color
         , style "background-color" backgroundColor
-        , onClick nextOp
+        , onClick message
         , disabled isDisabled
         ]
         [ text title ]
