@@ -5036,6 +5036,7 @@ var author$project$Main$QuickSort = function (a) {
 var author$project$Main$SelectionSort = function (a) {
 	return {$: 'SelectionSort', a: a};
 };
+var elm$core$Basics$neq = _Utils_notEqual;
 var elm$core$List$sortBy = _List_sortBy;
 var elm$core$List$sort = function (xs) {
 	return A2(elm$core$List$sortBy, elm$core$Basics$identity, xs);
@@ -5552,7 +5553,7 @@ var elm$time$Time$every = F2(
 			A2(elm$time$Time$Every, interval, tagger));
 	});
 var author$project$Main$subscriptions = function (model) {
-	if (_Utils_eq(
+	if (!_Utils_eq(
 		elm$core$List$sort(model.barList),
 		model.barList)) {
 		var _n0 = model.state;
