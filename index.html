@@ -5036,6 +5036,15 @@ var author$project$Main$QuickSort = function (a) {
 var author$project$Main$SelectionSort = function (a) {
 	return {$: 'SelectionSort', a: a};
 };
+var elm$core$List$sortBy = _List_sortBy;
+var elm$core$List$sort = function (xs) {
+	return A2(elm$core$List$sortBy, elm$core$Basics$identity, xs);
+};
+var author$project$Main$isSorted = function (list) {
+	return _Utils_eq(
+		elm$core$List$sort(list),
+		list) ? true : false;
+};
 var elm$core$Platform$Sub$batch = _Platform_batch;
 var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
 var elm$time$Time$Every = F2(
@@ -5548,20 +5557,24 @@ var elm$time$Time$every = F2(
 			A2(elm$time$Time$Every, interval, tagger));
 	});
 var author$project$Main$subscriptions = function (model) {
-	var _n0 = model.state;
-	switch (_n0.$) {
-		case 'InsertionSorting':
-			return A2(elm$time$Time$every, 400, author$project$Main$InsertionSort);
-		case 'SelectionSorting':
-			return A2(elm$time$Time$every, 400, author$project$Main$SelectionSort);
-		case 'QuickSorting':
-			return A2(elm$time$Time$every, 400, author$project$Main$QuickSort);
-		case 'MergeSorting':
-			return A2(elm$time$Time$every, 400, author$project$Main$MergeSort);
-		case 'Randomizing':
-			return elm$core$Platform$Sub$none;
-		default:
-			return elm$core$Platform$Sub$none;
+	if (!author$project$Main$isSorted(model.barList)) {
+		var _n0 = model.state;
+		switch (_n0.$) {
+			case 'InsertionSorting':
+				return A2(elm$time$Time$every, 400, author$project$Main$InsertionSort);
+			case 'SelectionSorting':
+				return A2(elm$time$Time$every, 400, author$project$Main$SelectionSort);
+			case 'QuickSorting':
+				return A2(elm$time$Time$every, 400, author$project$Main$QuickSort);
+			case 'MergeSorting':
+				return A2(elm$time$Time$every, 400, author$project$Main$MergeSort);
+			case 'Randomizing':
+				return elm$core$Platform$Sub$none;
+			default:
+				return elm$core$Platform$Sub$none;
+		}
+	} else {
+		return elm$core$Platform$Sub$none;
 	}
 };
 var author$project$Main$Insertion = {$: 'Insertion'};
@@ -5688,10 +5701,6 @@ var elm$core$List$filter = F2(
 			_List_Nil,
 			list);
 	});
-var elm$core$List$sortBy = _List_sortBy;
-var elm$core$List$sort = function (xs) {
-	return A2(elm$core$List$sortBy, elm$core$Basics$identity, xs);
-};
 var author$project$Main$quickSort = function (list) {
 	if (!list.b) {
 		return _List_Nil;
@@ -6351,11 +6360,11 @@ var author$project$Main$stateString = function (state) {
 			return 'Merge Sort';
 	}
 };
-var author$project$Main$controllButton = F4(
-	function (message, state, prevState, isStopped) {
+var author$project$Main$controllButton = F5(
+	function (message, isStopped, list, state, prevState) {
 		var title = (isStopped && _Utils_eq(state, author$project$Main$Stop)) ? 'Restart' : author$project$Main$stateString(state);
 		var nextOp = isStopped ? author$project$Main$nextMsg(prevState) : message;
-		var isDisabled = _Utils_eq(prevState, author$project$Main$None) ? true : false;
+		var isDisabled = (_Utils_eq(prevState, author$project$Main$None) || author$project$Main$isSorted(list)) ? true : false;
 		return A5(author$project$Main$baseButton, nextOp, isDisabled, title, '#fff', '#f08080');
 	});
 var author$project$Main$floatedList = function (list) {
@@ -7119,7 +7128,7 @@ var author$project$Main$view = function (model) {
 						author$project$Main$sortButton,
 						author$project$Main$MergeSort(author$project$Main$dummyPosix),
 						author$project$Main$MergeSorting),
-						A4(author$project$Main$controllButton, author$project$Main$NoOp, author$project$Main$Stop, model.prevState, model.isStopped)
+						A5(author$project$Main$controllButton, author$project$Main$NoOp, model.isStopped, model.barList, author$project$Main$Stop, model.prevState)
 					])),
 				A2(
 				elm$html$Html$div,
