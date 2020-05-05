@@ -191,15 +191,6 @@ nextMsg prevState =
             MergeSort dummyPosix
 
 
-isSorted : List Int -> Bool
-isSorted list =
-    if List.sort list == list then
-        True
-
-    else
-        False
-
-
 
 --MAIN
 
@@ -396,7 +387,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    if isSorted model.barList == False then
+    if List.sort model.barList == model.barList then
         case model.state of
             InsertionSorting ->
                 Time.every 400 InsertionSort
@@ -455,7 +446,7 @@ controllButton : Msg -> Bool -> List Int -> State -> PrevState -> Html Msg
 controllButton message isStopped list state prevState =
     let
         isDisabled =
-            if prevState == None || isSorted list == True then
+            if prevState == None || List.sort list == list then
                 True
 
             else
