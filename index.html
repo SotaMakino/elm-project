@@ -5040,11 +5040,6 @@ var elm$core$List$sortBy = _List_sortBy;
 var elm$core$List$sort = function (xs) {
 	return A2(elm$core$List$sortBy, elm$core$Basics$identity, xs);
 };
-var author$project$Main$isSorted = function (list) {
-	return _Utils_eq(
-		elm$core$List$sort(list),
-		list) ? true : false;
-};
 var elm$core$Platform$Sub$batch = _Platform_batch;
 var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
 var elm$time$Time$Every = F2(
@@ -5557,7 +5552,9 @@ var elm$time$Time$every = F2(
 			A2(elm$time$Time$Every, interval, tagger));
 	});
 var author$project$Main$subscriptions = function (model) {
-	if (!author$project$Main$isSorted(model.barList)) {
+	if (_Utils_eq(
+		elm$core$List$sort(model.barList),
+		model.barList)) {
 		var _n0 = model.state;
 		switch (_n0.$) {
 			case 'InsertionSorting':
@@ -6364,7 +6361,9 @@ var author$project$Main$controllButton = F5(
 	function (message, isStopped, list, state, prevState) {
 		var title = (isStopped && _Utils_eq(state, author$project$Main$Stop)) ? 'Restart' : author$project$Main$stateString(state);
 		var nextOp = isStopped ? author$project$Main$nextMsg(prevState) : message;
-		var isDisabled = (_Utils_eq(prevState, author$project$Main$None) || author$project$Main$isSorted(list)) ? true : false;
+		var isDisabled = (_Utils_eq(prevState, author$project$Main$None) || _Utils_eq(
+			elm$core$List$sort(list),
+			list)) ? true : false;
 		return A5(author$project$Main$baseButton, nextOp, isDisabled, title, '#fff', '#f08080');
 	});
 var author$project$Main$floatedList = function (list) {
