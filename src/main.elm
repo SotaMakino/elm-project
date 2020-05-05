@@ -387,7 +387,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    if List.sort model.barList == model.barList then
+    if List.sort model.barList /= model.barList then
         case model.state of
             InsertionSorting ->
                 Time.every 400 InsertionSort
