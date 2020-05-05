@@ -12,7 +12,7 @@ import Time exposing (Posix, millisToPosix)
 
 
 
---DATA
+--SORT FUNCTIONS
 
 
 insertionSort : List Int -> List Int
@@ -122,6 +122,10 @@ merge listOne listTwo =
                 frontTwo :: merge restTwo listOne
 
 
+
+-- HELPERS
+
+
 floatedList : List Int -> List Float
 floatedList list =
     List.map (\n -> toFloat n) list
@@ -185,6 +189,15 @@ nextMsg prevState =
 
         Merge ->
             MergeSort dummyPosix
+
+
+isSorted : List Int -> Bool
+isSorted list =
+    if List.sort list == list then
+        True
+
+    else
+        False
 
 
 
@@ -383,24 +396,28 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    case model.state of
-        InsertionSorting ->
-            Time.every 400 InsertionSort
+    if isSorted model.barList == False then
+        case model.state of
+            InsertionSorting ->
+                Time.every 400 InsertionSort
 
-        SelectionSorting ->
-            Time.every 400 SelectionSort
+            SelectionSorting ->
+                Time.every 400 SelectionSort
 
-        QuickSorting ->
-            Time.every 400 QuickSort
+            QuickSorting ->
+                Time.every 400 QuickSort
 
-        MergeSorting ->
-            Time.every 400 MergeSort
+            MergeSorting ->
+                Time.every 400 MergeSort
 
-        Randomizing ->
-            Sub.none
+            Randomizing ->
+                Sub.none
 
-        Stop ->
-            Sub.none
+            Stop ->
+                Sub.none
+
+    else
+        Sub.none
 
 
 
@@ -423,7 +440,7 @@ view model =
             , sortButton (SelectionSort dummyPosix) SelectionSorting
             , sortButton (QuickSort dummyPosix) QuickSorting
             , sortButton (MergeSort dummyPosix) MergeSorting
-            , controllButton NoOp Stop model.prevState model.isStopped
+            , controllButton NoOp model.isStopped model.barList Stop model.prevState
             ]
         , div [ style "padding-top" "15px" ] [ SingleSlider.view model.singleSlider ]
         ]
@@ -434,11 +451,11 @@ sortButton message state =
     baseButton message False (stateString state) "#333" "#fff"
 
 
-controllButton : Msg -> State -> PrevState -> Bool -> Html Msg
-controllButton message state prevState isStopped =
+controllButton : Msg -> Bool -> List Int -> State -> PrevState -> Html Msg
+controllButton message isStopped list state prevState =
     let
         isDisabled =
-            if prevState == None then
+            if prevState == None || isSorted list == True then
                 True
 
             else
