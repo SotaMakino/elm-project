@@ -6157,7 +6157,7 @@ var author$project$Main$update = F2(
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{barList: randomizedList, isStopped: false, state: author$project$Main$Randomizing}),
+						{barList: randomizedList, isStopped: false, prevState: author$project$Main$None, state: author$project$Main$Randomizing}),
 					elm$core$Platform$Cmd$none);
 			case 'InsertionSort':
 				return _Utils_Tuple2(
@@ -6253,45 +6253,6 @@ var author$project$Main$adjustedGraphAttributes = function (model) {
 			])
 	};
 };
-var author$project$Main$dummyPosix = elm$time$Time$millisToPosix(0);
-var author$project$Main$floatedList = function (list) {
-	return A2(
-		elm$core$List$map,
-		function (n) {
-			return n;
-		},
-		list);
-};
-var author$project$Main$nextMsg = function (prevState) {
-	switch (prevState.$) {
-		case 'None':
-			return author$project$Main$NoOp;
-		case 'Insertion':
-			return author$project$Main$InsertionSort(author$project$Main$dummyPosix);
-		case 'Selection':
-			return author$project$Main$SelectionSort(author$project$Main$dummyPosix);
-		case 'Quick':
-			return author$project$Main$QuickSort(author$project$Main$dummyPosix);
-		default:
-			return author$project$Main$MergeSort(author$project$Main$dummyPosix);
-	}
-};
-var author$project$Main$stateString = function (state) {
-	switch (state.$) {
-		case 'Stop':
-			return 'Stop';
-		case 'Randomizing':
-			return 'Randomize';
-		case 'InsertionSorting':
-			return 'Insertion Sort';
-		case 'SelectionSorting':
-			return 'Selectioin Sort';
-		case 'QuickSorting':
-			return 'Quick Sort';
-		default:
-			return 'Merge Sort';
-	}
-};
 var elm$json$Json$Decode$map = _Json_map1;
 var elm$json$Json$Decode$map2 = _Json_map2;
 var elm$json$Json$Decode$succeed = _Json_succeed;
@@ -6338,13 +6299,8 @@ var elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		elm$json$Json$Decode$succeed(msg));
 };
-var author$project$Main$sortButton = F5(
-	function (message, state, prevState, isStopped, isProminent) {
-		var title = (isStopped && _Utils_eq(state, author$project$Main$Stop)) ? 'Restart' : author$project$Main$stateString(state);
-		var nextOp = (isStopped && isProminent) ? author$project$Main$nextMsg(prevState) : message;
-		var isDisabled = (_Utils_eq(prevState, author$project$Main$None) && isProminent) ? true : false;
-		var color = isProminent ? '#fff' : '#333';
-		var backgroundColor = isProminent ? '#f08080' : '#fff';
+var author$project$Main$baseButton = F5(
+	function (message, isDisabled, title, color, backgroundColor) {
 		return A2(
 			elm$html$Html$button,
 			_List_fromArray(
@@ -6356,13 +6312,69 @@ var author$project$Main$sortButton = F5(
 					A2(elm$html$Html$Attributes$style, 'padding', '0.5em 1em'),
 					A2(elm$html$Html$Attributes$style, 'color', color),
 					A2(elm$html$Html$Attributes$style, 'background-color', backgroundColor),
-					elm$html$Html$Events$onClick(nextOp),
+					elm$html$Html$Events$onClick(message),
 					elm$html$Html$Attributes$disabled(isDisabled)
 				]),
 			_List_fromArray(
 				[
 					elm$html$Html$text(title)
 				]));
+	});
+var author$project$Main$dummyPosix = elm$time$Time$millisToPosix(0);
+var author$project$Main$nextMsg = function (prevState) {
+	switch (prevState.$) {
+		case 'None':
+			return author$project$Main$NoOp;
+		case 'Insertion':
+			return author$project$Main$InsertionSort(author$project$Main$dummyPosix);
+		case 'Selection':
+			return author$project$Main$SelectionSort(author$project$Main$dummyPosix);
+		case 'Quick':
+			return author$project$Main$QuickSort(author$project$Main$dummyPosix);
+		default:
+			return author$project$Main$MergeSort(author$project$Main$dummyPosix);
+	}
+};
+var author$project$Main$stateString = function (state) {
+	switch (state.$) {
+		case 'Stop':
+			return 'Stop';
+		case 'Randomizing':
+			return 'Randomize';
+		case 'InsertionSorting':
+			return 'Insertion Sort';
+		case 'SelectionSorting':
+			return 'Selectioin Sort';
+		case 'QuickSorting':
+			return 'Quick Sort';
+		default:
+			return 'Merge Sort';
+	}
+};
+var author$project$Main$controllButton = F4(
+	function (message, state, prevState, isStopped) {
+		var title = (isStopped && _Utils_eq(state, author$project$Main$Stop)) ? 'Restart' : author$project$Main$stateString(state);
+		var nextOp = isStopped ? author$project$Main$nextMsg(prevState) : message;
+		var isDisabled = _Utils_eq(prevState, author$project$Main$None) ? true : false;
+		return A5(author$project$Main$baseButton, nextOp, isDisabled, title, '#fff', '#f08080');
+	});
+var author$project$Main$floatedList = function (list) {
+	return A2(
+		elm$core$List$map,
+		function (n) {
+			return n;
+		},
+		list);
+};
+var author$project$Main$sortButton = F2(
+	function (message, state) {
+		return A5(
+			author$project$Main$baseButton,
+			message,
+			false,
+			author$project$Main$stateString(state),
+			'#333',
+			'#fff');
 	});
 var carwow$elm_slider$RangeSlider$onChange = F2(
 	function (msg, input) {
@@ -7056,7 +7068,7 @@ var author$project$Main$view = function (model) {
 		elm$html$Html$div,
 		_List_fromArray(
 			[
-				A2(elm$html$Html$Attributes$style, 'padding', '35px')
+				A2(elm$html$Html$Attributes$style, 'padding', '30px')
 			]),
 		_List_fromArray(
 			[
@@ -7076,7 +7088,7 @@ var author$project$Main$view = function (model) {
 				elm$html$Html$div,
 				_List_fromArray(
 					[
-						A2(elm$html$Html$Attributes$style, 'padding-top', '20px')
+						A2(elm$html$Html$Attributes$style, 'padding-top', '35px')
 					]),
 				_List_fromArray(
 					[
@@ -7090,36 +7102,24 @@ var author$project$Main$view = function (model) {
 				_List_Nil,
 				_List_fromArray(
 					[
-						A5(author$project$Main$sortButton, author$project$Main$Randomize, author$project$Main$Randomizing, model.prevState, model.isStopped, false),
-						A5(
+						A2(author$project$Main$sortButton, author$project$Main$Randomize, author$project$Main$Randomizing),
+						A2(
 						author$project$Main$sortButton,
 						author$project$Main$InsertionSort(author$project$Main$dummyPosix),
-						author$project$Main$InsertionSorting,
-						model.prevState,
-						model.isStopped,
-						false),
-						A5(
+						author$project$Main$InsertionSorting),
+						A2(
 						author$project$Main$sortButton,
 						author$project$Main$SelectionSort(author$project$Main$dummyPosix),
-						author$project$Main$SelectionSorting,
-						model.prevState,
-						model.isStopped,
-						false),
-						A5(
+						author$project$Main$SelectionSorting),
+						A2(
 						author$project$Main$sortButton,
 						author$project$Main$QuickSort(author$project$Main$dummyPosix),
-						author$project$Main$QuickSorting,
-						model.prevState,
-						model.isStopped,
-						false),
-						A5(
+						author$project$Main$QuickSorting),
+						A2(
 						author$project$Main$sortButton,
 						author$project$Main$MergeSort(author$project$Main$dummyPosix),
-						author$project$Main$MergeSorting,
-						model.prevState,
-						model.isStopped,
-						false),
-						A5(author$project$Main$sortButton, author$project$Main$NoOp, author$project$Main$Stop, model.prevState, model.isStopped, true)
+						author$project$Main$MergeSorting),
+						A4(author$project$Main$controllButton, author$project$Main$NoOp, author$project$Main$Stop, model.prevState, model.isStopped)
 					])),
 				A2(
 				elm$html$Html$div,
