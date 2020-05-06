@@ -5566,8 +5566,6 @@ var author$project$Main$subscriptions = function (model) {
 				return A2(elm$time$Time$every, 400, author$project$Main$QuickSort);
 			case 'MergeSorting':
 				return A2(elm$time$Time$every, 400, author$project$Main$MergeSort);
-			case 'Randomizing':
-				return elm$core$Platform$Sub$none;
 			default:
 				return elm$core$Platform$Sub$none;
 		}
@@ -6211,9 +6209,9 @@ var author$project$Main$update = F2(
 						}),
 					elm$core$Platform$Cmd$none);
 			default:
-				var flt = msg.a;
-				var newSlider = A2(carwow$elm_slider$SingleSlider$update, flt, model.singleSlider);
-				var newDeltaX = (flt > 90) ? (flt * 8.0e-2) : ((flt > 80) ? (flt * 0.11) : ((flt > 66) ? (flt * 0.15) : ((flt > 50) ? (flt * 0.2) : ((flt > 45) ? (flt * 0.3) : ((flt > 30) ? (flt * 0.5) : flt)))));
+				var newValue = msg.a;
+				var newSlider = A2(carwow$elm_slider$SingleSlider$update, newValue, model.singleSlider);
+				var newDeltaX = (newValue > 90) ? (newValue * 8.0e-2) : ((newValue > 80) ? (newValue * 0.11) : ((newValue > 66) ? (newValue * 0.15) : ((newValue > 50) ? (newValue * 0.2) : ((newValue > 45) ? (newValue * 0.3) : ((newValue > 30) ? (newValue * 0.5) : newValue)))));
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
@@ -6221,7 +6219,7 @@ var author$project$Main$update = F2(
 							barList: A2(
 								elm$core$List$range,
 								1,
-								elm$core$Basics$round(flt)),
+								elm$core$Basics$round(newValue)),
 							deltaX: newDeltaX,
 							singleSlider: newSlider
 						}),
