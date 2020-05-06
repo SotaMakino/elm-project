@@ -131,8 +131,8 @@ floatedList list =
     List.map (\n -> toFloat n) list
 
 
-adjustedGraphAttributes : Model -> GraphAttributes
-adjustedGraphAttributes model =
+adjustedGraphAttributes : Float -> GraphAttributes
+adjustedGraphAttributes float =
     { graphHeight = 300
     , graphWidth = 900
     , options =
@@ -140,7 +140,7 @@ adjustedGraphAttributes model =
         , YTickmarks 6
         , XTickmarks 1
         , Scale 1.0 1.0
-        , DeltaX model.deltaX
+        , DeltaX float
         ]
     }
 
@@ -423,7 +423,7 @@ view model =
             , style "font-weight" "800"
             ]
             [ text "Comparison Sorting Algorithms" ]
-        , div [ style "padding-top" "35px" ] [ barChart (adjustedGraphAttributes model) (floatedList model.barList) ]
+        , div [ style "padding-top" "35px" ] [ barChart (adjustedGraphAttributes model.deltaX) (floatedList model.barList) ]
         , div []
             [ sortButton Randomize Randomizing
             , sortButton (InsertionSort dummyPosix) InsertionSorting
