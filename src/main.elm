@@ -345,36 +345,38 @@ update msg model =
             , Cmd.none
             )
 
-        SingleSliderChange flt ->
+        SingleSliderChange newValue ->
             let
+                newSlider : SingleSlider.SingleSlider Msg
                 newSlider =
-                    SingleSlider.update flt model.singleSlider
+                    SingleSlider.update newValue model.singleSlider
 
+                newDeltaX : Float
                 newDeltaX =
-                    if flt > 90 then
-                        flt * 0.08
+                    if newValue > 90 then
+                        newValue * 0.08
 
-                    else if flt > 80 then
-                        flt * 0.11
+                    else if newValue > 80 then
+                        newValue * 0.11
 
-                    else if flt > 66 then
-                        flt * 0.15
+                    else if newValue > 66 then
+                        newValue * 0.15
 
-                    else if flt > 50 then
-                        flt * 0.2
+                    else if newValue > 50 then
+                        newValue * 0.2
 
-                    else if flt > 45 then
-                        flt * 0.3
+                    else if newValue > 45 then
+                        newValue * 0.3
 
-                    else if flt > 30 then
-                        flt * 0.5
+                    else if newValue > 30 then
+                        newValue * 0.5
 
                     else
-                        flt
+                        newValue
             in
             ( { model
                 | singleSlider = newSlider
-                , barList = List.range 1 (round flt)
+                , barList = List.range 1 (round newValue)
                 , deltaX = newDeltaX
               }
             , Cmd.none
@@ -401,10 +403,7 @@ subscriptions model =
             MergeSorting ->
                 Time.every 400 MergeSort
 
-            Randomizing ->
-                Sub.none
-
-            Stop ->
+            _ ->
                 Sub.none
 
     else
@@ -445,13 +444,7 @@ sortButton message state =
 controllButton : Msg -> Bool -> List Int -> State -> PrevState -> Html Msg
 controllButton message isStopped list state prevState =
     let
-        isDisabled =
-            if prevState == None || List.sort list == list then
-                True
-
-            else
-                False
-
+        nextOp : Msg
         nextOp =
             if isStopped == True then
                 nextMsg prevState
@@ -459,6 +452,15 @@ controllButton message isStopped list state prevState =
             else
                 message
 
+        isDisabled : Bool
+        isDisabled =
+            if prevState == None || List.sort list == list then
+                True
+
+            else
+                False
+
+        title : String
         title =
             if isStopped == True && state == Stop then
                 "Restart"
