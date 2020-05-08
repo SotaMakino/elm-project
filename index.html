@@ -5609,65 +5609,40 @@ var author$project$Main$insertionSort = function (list) {
 	}
 };
 var author$project$Main$merge = F2(
-	function (listOne, listTwo) {
-		var _n0 = _Utils_Tuple2(listOne, listTwo);
-		if (!_n0.b.b) {
-			return listOne;
+	function (listA, listB) {
+		var _n0 = _Utils_Tuple2(listA, listB);
+		if (_n0.a.b && _n0.b.b) {
+			var _n1 = _n0.a;
+			var a = _n1.a;
+			var restA = _n1.b;
+			var _n2 = _n0.b;
+			var b = _n2.a;
+			var restB = _n2.b;
+			return (_Utils_cmp(a, b) < 0) ? A2(
+				elm$core$List$cons,
+				a,
+				A2(author$project$Main$merge, listB, restA)) : A2(
+				elm$core$List$cons,
+				b,
+				A2(author$project$Main$merge, listA, restB));
 		} else {
-			if (!_n0.a.b) {
-				return listTwo;
-			} else {
-				var _n1 = _n0.a;
-				var frontOne = _n1.a;
-				var restOne = _n1.b;
-				var _n2 = _n0.b;
-				var frontTwo = _n2.a;
-				var restTwo = _n2.b;
-				return (_Utils_cmp(frontOne, frontTwo) < 0) ? A2(
-					elm$core$List$cons,
-					frontOne,
-					A2(author$project$Main$merge, restOne, listTwo)) : A2(
-					elm$core$List$cons,
-					frontTwo,
-					A2(author$project$Main$merge, restTwo, listOne));
-			}
-		}
-	});
-var author$project$Main$splitHelp = F4(
-	function (list, num, halfOne, halfTwo) {
-		splitHelp:
-		while (true) {
-			if (!list.b) {
-				return _Utils_Tuple2(halfOne, halfTwo);
-			} else {
-				var first = list.a;
-				var rest = list.b;
-				if (((num / 2) | 0) === 1) {
-					var $temp$list = rest,
-						$temp$num = num + 1,
-						$temp$halfOne = A2(elm$core$List$cons, first, halfOne),
-						$temp$halfTwo = halfTwo;
-					list = $temp$list;
-					num = $temp$num;
-					halfOne = $temp$halfOne;
-					halfTwo = $temp$halfTwo;
-					continue splitHelp;
-				} else {
-					var $temp$list = rest,
-						$temp$num = num + 1,
-						$temp$halfOne = halfOne,
-						$temp$halfTwo = A2(elm$core$List$cons, first, halfTwo);
-					list = $temp$list;
-					num = $temp$num;
-					halfOne = $temp$halfOne;
-					halfTwo = $temp$halfTwo;
-					continue splitHelp;
-				}
-			}
+			return listA;
 		}
 	});
 var author$project$Main$split = function (list) {
-	return A4(author$project$Main$splitHelp, list, 1, _List_Nil, _List_Nil);
+	if (!list.b) {
+		return _Utils_Tuple2(_List_Nil, _List_Nil);
+	} else {
+		var first = list.a;
+		var rest = list.b;
+		var _n1 = author$project$Main$split(rest);
+		var halfOne = _n1.a;
+		var halfTwo = _n1.b;
+		return _Utils_Tuple2(
+			_List_fromArray(
+				[first]),
+			_Utils_ap(halfOne, halfTwo));
+	}
 };
 var author$project$Main$mergeSort = function (list) {
 	if (!list.b) {
@@ -5719,15 +5694,12 @@ var author$project$Main$quickSort = function (list) {
 			elm$core$List$sort(smaller),
 			smaller) ? _Utils_ap(
 			smaller,
-			_Utils_ap(
-				_List_fromArray(
-					[pivot]),
+			A2(
+				elm$core$List$cons,
+				pivot,
 				author$project$Main$quickSort(bigger))) : _Utils_ap(
 			author$project$Main$quickSort(smaller),
-			_Utils_ap(
-				_List_fromArray(
-					[pivot]),
-				bigger));
+			A2(elm$core$List$cons, pivot, bigger));
 	}
 };
 var elm$core$Basics$min = F2(
@@ -6244,7 +6216,7 @@ var jxxcarlson$elm_graph$SimpleGraph$XTickmarks = function (a) {
 var jxxcarlson$elm_graph$SimpleGraph$YTickmarks = function (a) {
 	return {$: 'YTickmarks', a: a};
 };
-var author$project$Main$adjustedGraphAttributes = function (model) {
+var author$project$Main$adjustedGraphAttributes = function (_float) {
 	return {
 		graphHeight: 300,
 		graphWidth: 900,
@@ -6254,7 +6226,7 @@ var author$project$Main$adjustedGraphAttributes = function (model) {
 				jxxcarlson$elm_graph$SimpleGraph$YTickmarks(6),
 				jxxcarlson$elm_graph$SimpleGraph$XTickmarks(1),
 				A2(jxxcarlson$elm_graph$SimpleGraph$Scale, 1.0, 1.0),
-				jxxcarlson$elm_graph$SimpleGraph$DeltaX(model.deltaX)
+				jxxcarlson$elm_graph$SimpleGraph$DeltaX(_float)
 			])
 	};
 };
@@ -6360,9 +6332,9 @@ var author$project$Main$controllButton = F5(
 	function (message, isStopped, list, state, prevState) {
 		var title = (isStopped && _Utils_eq(state, author$project$Main$Stop)) ? 'Restart' : author$project$Main$stateString(state);
 		var nextOp = isStopped ? author$project$Main$nextMsg(prevState) : message;
-		var isDisabled = (_Utils_eq(prevState, author$project$Main$None) || _Utils_eq(
+		var isDisabled = _Utils_eq(prevState, author$project$Main$None) || _Utils_eq(
 			elm$core$List$sort(list),
-			list)) ? true : false;
+			list);
 		return A5(author$project$Main$baseButton, nextOp, isDisabled, title, '#fff', '#f08080');
 	});
 var author$project$Main$floatedList = function (list) {
@@ -7101,7 +7073,7 @@ var author$project$Main$view = function (model) {
 					[
 						A2(
 						jxxcarlson$elm_graph$SimpleGraph$barChart,
-						author$project$Main$adjustedGraphAttributes(model),
+						author$project$Main$adjustedGraphAttributes(model.deltaX),
 						author$project$Main$floatedList(model.barList))
 					])),
 				A2(
