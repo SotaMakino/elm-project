@@ -1,13 +1,13 @@
 module Main exposing (Model, Msg, init, update, view)
 
 import Browser
-import Html exposing (..)
+import Html exposing (Html)
 import Html.Attributes exposing (disabled, style)
 import Html.Events exposing (onClick)
-import Random exposing (Seed, generate)
+import Random exposing (generate)
 import Random.List exposing (shuffle)
-import SimpleGraph exposing (GraphAttributes, Option(..), barChart, lineChart)
-import SingleSlider exposing (..)
+import SimpleGraph exposing (GraphAttributes, Option(..), barChart)
+import SingleSlider exposing (SingleSlider)
 import Time exposing (Posix, millisToPosix)
 
 
@@ -64,12 +64,13 @@ quickSort list =
                     List.filter (\n -> n > pivot) rest
             in
             if List.sort smaller == smaller then
-                smaller ++ [ pivot ] ++ quickSort bigger
+                smaller ++ pivot :: quickSort bigger
 
             else
-                quickSort smaller ++ [ pivot ] ++ bigger
+                quickSort smaller ++ pivot :: bigger
 
 
+mergeSort : List Int -> List Int
 mergeSort list =
     case list of
         [] ->
@@ -228,7 +229,7 @@ type PrevState
 type alias Model =
     { barList : List Int
     , deltaX : Float
-    , singleSlider : SingleSlider.SingleSlider Msg
+    , singleSlider : SingleSlider Msg
     , state : State
     , prevState : PrevState
     , isStopped : Bool
@@ -347,7 +348,7 @@ update msg model =
 
         SingleSliderChange newValue ->
             let
-                newSlider : SingleSlider.SingleSlider Msg
+                newSlider : SingleSlider Msg
                 newSlider =
                     SingleSlider.update newValue model.singleSlider
 
@@ -416,15 +417,15 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    div [ style "padding" "30px" ]
-        [ header
+    Html.div [ style "padding" "30px" ]
+        [ Html.header
             [ style "color" "#6e7372"
             , style "font-size" "30px"
             , style "font-weight" "800"
             ]
-            [ text "Comparison Sorting Algorithms" ]
-        , div [ style "padding-top" "35px" ] [ barChart (adjustedGraphAttributes model.deltaX) (floatedList model.barList) ]
-        , div []
+            [ Html.text "Comparison Sorting Algorithms" ]
+        , Html.div [ style "padding-top" "35px" ] [ barChart (adjustedGraphAttributes model.deltaX) (floatedList model.barList) ]
+        , Html.div []
             [ sortButton Randomize Randomizing
             , sortButton (InsertionSort dummyPosix) InsertionSorting
             , sortButton (SelectionSort dummyPosix) SelectionSorting
@@ -432,7 +433,7 @@ view model =
             , sortButton (MergeSort dummyPosix) MergeSorting
             , controllButton NoOp model.isStopped model.barList Stop model.prevState
             ]
-        , div [ style "padding-top" "15px" ] [ SingleSlider.view model.singleSlider ]
+        , Html.div [ style "padding-top" "15px" ] [ SingleSlider.view model.singleSlider ]
         ]
 
 
@@ -454,11 +455,7 @@ controllButton message isStopped list state prevState =
 
         isDisabled : Bool
         isDisabled =
-            if prevState == None || List.sort list == list then
-                True
-
-            else
-                False
+            prevState == None || List.sort list == list
 
         title : String
         title =
@@ -477,7 +474,7 @@ controllButton message isStopped list state prevState =
 
 baseButton : Msg -> Bool -> String -> String -> String -> Html Msg
 baseButton message isDisabled title color backgroundColor =
-    button
+    Html.button
         [ style "margin" "13px 5px"
         , style "font-size" "16px"
         , style "font-weight" "500"
@@ -488,4 +485,4 @@ baseButton message isDisabled title color backgroundColor =
         , onClick message
         , disabled isDisabled
         ]
-        [ text title ]
+        [ Html.text title ]
