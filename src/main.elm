@@ -89,38 +89,30 @@ mergeSort list =
 
 split : List Int -> ( List Int, List Int )
 split list =
-    splitHelp list 1 [] []
-
-
-splitHelp : List Int -> Int -> List Int -> List Int -> ( List Int, List Int )
-splitHelp list num halfOne halfTwo =
     case list of
         [] ->
-            ( halfOne, halfTwo )
+            ( [], [] )
 
         first :: rest ->
-            if (num // 2) == 1 then
-                splitHelp rest (num + 1) (first :: halfOne) halfTwo
-
-            else
-                splitHelp rest (num + 1) halfOne (first :: halfTwo)
+            let
+                ( halfOne, halfTwo ) =
+                    split rest
+            in
+            ( [ first ], halfOne ++ halfTwo )
 
 
 merge : List Int -> List Int -> List Int
-merge listOne listTwo =
-    case ( listOne, listTwo ) of
-        ( _, [] ) ->
-            listOne
-
-        ( [], _ ) ->
-            listTwo
-
-        ( frontOne :: restOne, frontTwo :: restTwo ) ->
-            if frontOne < frontTwo then
-                frontOne :: merge restOne listTwo
+merge listA listB =
+    case ( listA, listB ) of
+        ( a :: restA, b :: restB ) ->
+            if a < b then
+                a :: merge listB restA
 
             else
-                frontTwo :: merge restTwo listOne
+                b :: merge listA restB
+
+        _ ->
+            listA
 
 
 
@@ -196,6 +188,7 @@ nextMsg prevState =
 --MAIN
 
 
+main : Program () Model Msg
 main =
     Browser.element
         { init = init
