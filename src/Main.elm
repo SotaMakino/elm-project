@@ -110,9 +110,9 @@ update msg model =
 
         RandomizedList randomizedList ->
             ( { model
-                | state = Randomizing
+                | barList = randomizedList
+                , state = Randomizing
                 , prevState = Randomizing
-                , barList = randomizedList
                 , isStopped = False
               }
             , Cmd.none
